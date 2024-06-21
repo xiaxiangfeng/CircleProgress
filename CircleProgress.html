@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Colorful Circular Progress Bar</title>
+    <style>
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #f0f0f0;
+        margin: 0;
+      }
+
+      .circle-progress {
+        width: 94px;
+        height: 94px;
+        border-radius: 50%;
+        background: conic-gradient(
+          #e6936a 0% 25%,
+          #ee6464 25% 40%,
+          transparent 40% 60%,
+          #6feea9 60% 75%,
+          #edc777 75% 100%
+        );
+        position: relative;
+        overflow: hidden;
+        margin: 10px;
+      }
+
+      .circle-progress::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 94%;
+        height: 94%;
+        background-color: #f0f0f0;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+      }
+
+      .circle-progress span {
+        display: inline-block;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="circle-progress" id="circle-progress">
+      <span>30%</span>
+    </div>
+    <div class="circle-progress" id="circle-progress1">
+      <span>50%</span>
+    </div>
+    <div class="circle-progress" id="circle-progress2">
+      <span>80%</span>
+    </div>
+    <div class="circle-progress" id="circle-progress3">
+      <span>100%</span>
+    </div>
+    <script>
+      function CircleProgress(id, num) {
+        function isBetween(x, a, b) {
+          return x >= a && x <= b;
+        }
+
+        const progress = document.getElementById(id);
+        const total = 80;
+
+        if (num === 0) return 0;
+        num = parseInt((num / 100) * total);
+        progressNum = num + 60;
+        if (progressNum > 100) {
+          progressNum = num - 40;
+        }
+
+        const gradients = [
+          { color: "#6feea9", start: 60, end: 75 },
+          { color: "#edc777", start: 75, end: 100 },
+          { color: "#e6936a", start: 0, end: 25 },
+          { color: "#ee6464", start: 25, end: 40 },
+        ];
+
+        const progressGradient = [];
+
+        for (var i = 0; i < gradients.length; i++) {
+          const item = gradients[i];
+          if (isBetween(progressNum, item.start, item.end)) {
+            const gradient = { ...item, end: progressNum };
+            progressGradient.push(gradient);
+            // 剩余部分透明处理
+            if (progressNum <= 100 && progressNum > 60) {
+              if (progressNum < 100) {
+                // 后面部分透明
+                progressGradient.push({
+                  color: "transparent",
+                  start: progressNum,
+                  end: 100,
+                });
+              }
+              // 后面部分透明
+              progressGradient.push({
+                color: "transparent",
+                start: 0,
+                end: 60,
+              });
+            }
+            // 只需处理后面部分透明
+            if (progressNum <= 40 && progressNum > 0) {
+              progressGradient.push({
+                color: "transparent",
+                start: progressNum,
+                end: 60,
+              });
+            }
+            break; // 终止循环
+          } else {
+            progressGradient.push({
+              ...item,
+            });
+          }
+        }
+
+        // 升序排序
+        progressGradient.sort((a, b) => a.start - b.start);
+
+        let gradient = "";
+        progressGradient.forEach((item) => {
+          gradient = gradient + `${item.color} ${item.start}% ${item.end}%,`;
+        });
+        gradient = gradient.replace(/,$/, "");
+
+        progress.style.background = `conic-gradient(${gradient})`;
+      }
+
+      CircleProgress("circle-progress", 30);
+      CircleProgress("circle-progress1", 50);
+      CircleProgress("circle-progress2", 80);
+      CircleProgress("circle-progress3", 100);
+    </script>
+  </body>
+</html>
